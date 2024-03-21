@@ -23,11 +23,11 @@
  CPP  ONNX推理测试.
 
 ```shell
-git clone 
-
+git clone https://github.com/chenyangMl/keyword-spot.git
+cd onnxruntime
 mkdir build && cd build 
 cmake .. 
-cmake --build . --target kws_main
+cmake --build . --target kws_main  
 
 #不同模型使用如下对应参数进行模型推理。
 ```
@@ -64,7 +64,10 @@ xxx
 
 # 模型转换
 
-xxx
+- pytorch2onnx: 将训练好的pytorch模型转换为onnx模型。onnx模型是常见的中间态模型，支持转换其他平台的模型(ncnn, tensorRT等各类推理引擎模型)。
+- onnx2ort: 将onnx模型转换成ort模型，用于端侧部署。
+
+详细内容参考[唤醒词模型转换](docs/model_convert.md)
 
 
 
@@ -74,9 +77,9 @@ xxx
 
 | 损失函数    | 模型名称         | 模型(Pytorch ckpt)                                           | 模型(onnx) | 端侧模型 |
 | ----------- | ---------------- | ------------------------------------------------------------ | ---------- | -------- |
-| Max-Pooling | DS_TCN(你好问问) | [DSTCN-MaxPooling](https://modelscope.cn/models/thuduj12/kws_wenwen_dstcn/files) |            |          |
+| Max-Pooling | DS_TCN(你好问问) | [DSTCN-MaxPooling](https://modelscope.cn/models/thuduj12/kws_wenwen_dstcn/files) | 搭建ing    |          |
 |             |                  |                                                              |            |          |
-| CTC         | FSMN(你好问问)   | [FSMN-CTC](https://modelscope.cn/models/thuduj12/kws_wenwen_fsmn_ctc/files) |            |          |
+| CTC         | FSMN(你好问问)   | [FSMN-CTC](https://modelscope.cn/models/thuduj12/kws_wenwen_fsmn_ctc/files) | 搭建ing    |          |
 
 
 
@@ -94,7 +97,7 @@ xxx
 
 
 
-# [License](https://github.com/chenyangMl/keyword-spot/blob/main/LICENSE)
+# [License](./LICENSE)
 
 MIT
 
