@@ -34,6 +34,7 @@ cmake --build . --target kws_main
 
 测试日志:  frame表示当前处理的time step. prob的第一列表示关键词1的分类概率, 　第二列关键词2的分类概率。
 
+```
 > Kws Model Info:
 > 	cache_dim: 256
 > 	cache_len: 105
@@ -64,6 +65,7 @@ cmake --build . --target kws_main
 > frame 154 prob 2.98023e-08 0
 >
 > Process finished with exit code 0
+```
 
 
 
@@ -79,32 +81,35 @@ cmake --build . --target kws_main
 
 
 
-> Kws Model Info:
-> 	cache_dim: 128
-> 	cache_len: 11
-> stepT=  0 tokenid=   0 proposed i=0 prob=0.952
-> stepT=  3 tokenid=   0 proposed i=0 prob=0.943
-> stepT=  6 tokenid=   0 proposed i=0 prob=0.946
-> stepT=  9 tokenid=   0 proposed i=0 prob=0.965
-> stepT= 12 tokenid=   0 proposed i=0 prob=0.801
->
-> ...
->
-> stepT=129 tokenid=   0 proposed i=0 prob=1
-> stepT=132 tokenid=2494 proposed i=0 prob=0.954
-> hitword=你好小问
-> hitscore=0.954
-> start frame=69 end frame=132
-> stepT=135 tokenid=2494 proposed i=0 prob=1
-> stepT=138 tokenid=   0 proposed i=0 prob=1
-> stepT=141 tokenid=   0 proposed i=0 prob=1
-> stepT=144 tokenid=   0 proposed i=0 prob=1
-> stepT=147 tokenid=   0 proposed i=0 prob=1
-> stepT=150 tokenid=   0 proposed i=0 prob=1
-> stepT=153 tokenid=   0 proposed i=0 prob=1
-> stepT=156 tokenid=   0 proposed i=0 prob=1
-> stepT=159 tokenid=   0 proposed i=0 prob=1
-> stepT=162 tokenid=   0 proposed i=0 prob=1
-> stepT=165 tokenid=   0 proposed i=0 prob=1
->
-> Process finished with exit code 0
+```
+Kws Model Info:
+	cache_dim: 128
+	cache_len: 11
+stepT=  0 tokenid=   0 proposed i=0 prob=0.952
+stepT=  3 tokenid=   0 proposed i=0 prob=0.943
+stepT=  6 tokenid=   0 proposed i=0 prob=0.946
+stepT=  9 tokenid=   0 proposed i=0 prob=0.965
+stepT= 12 tokenid=   0 proposed i=0 prob=0.801
+
+...
+
+stepT=129 tokenid=   0 proposed i=0 prob=1
+stepT=132 tokenid=2494 proposed i=0 prob=0.954
+hitword=你好小问
+hitscore=0.954
+start frame=69 end frame=132
+stepT=135 tokenid=2494 proposed i=0 prob=1
+stepT=138 tokenid=   0 proposed i=0 prob=1
+stepT=141 tokenid=   0 proposed i=0 prob=1
+stepT=144 tokenid=   0 proposed i=0 prob=1
+stepT=147 tokenid=   0 proposed i=0 prob=1
+stepT=150 tokenid=   0 proposed i=0 prob=1
+stepT=153 tokenid=   0 proposed i=0 prob=1
+stepT=156 tokenid=   0 proposed i=0 prob=1
+stepT=159 tokenid=   0 proposed i=0 prob=1
+stepT=162 tokenid=   0 proposed i=0 prob=1
+stepT=165 tokenid=   0 proposed i=0 prob=1
+
+Process finished with exit code 0
+```
+
