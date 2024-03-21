@@ -1,0 +1,110 @@
+// Copyright (c) 2022 Binbin Zhang (binbzha@qq.com)
+// Copyright (c) 2024 Yang Chen (cyang8050@163.com)
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+
+#include <algorithm>
+#include <string>
+
+#include "frontend/feature_pipeline.h"
+#include "frontend/wav.h"
+#include "kws/keyword_spotting.h"
+#include "utils/log.h"
+
+
+int main(int argc, char *argv[]) {
+
+    std::string token_path;
+    std::string key_word;
+    wenet::MODEL_TYPE mode_type;
+    if (argc > 2){
+        mode_type = (wenet::MODEL_TYPE)std::stoi(argv[1]);
+        if(mode_type==wenet::CTC_TYPE_MODEL){
+            if (argc != 7) {
+                LOG(FATAL) << "Usage: kws_main\n mode_type 1 num_bins [int] batch_size [int]) "
+                           << "model_path [string] wav_path [string] key_word [string]"   ;
+            }
+            // Input Arguments.
+            key_word = argv[6];
+            token_path = "../../kws/tokens.txt";
+        } else if (mode_type == wenet::MAXPOOLING_TYPE_MODEL){
+            if (argc != 6) {
+                LOG(FATAL) << "Usage: kws_main\n mode_type 0 num_bins [int] batch_size [int]) "
+                           << "model_path [string] wav_path [string] key_word [string]"   ;
+            }
+            token_path = "../../kws/maxpooling_keyword.txt";
+        }
+    }else{
+        LOG(FATAL) << "Usage: kws_main\n num_bins [int] batch_size [int]) "
+                   << "model_path [string] wav_path [string] key_word [string]"   ;
+    }
+
+    // Input Arguments.
+    const int num_bins = std::stoi(argv[2]);             // num_mel_bins in config.yaml. means dim of Fbank feature.
+    const int batch_size = std::stoi(argv[3]);
+    const std::string model_path = argv[4];
+    const std::string wav_path = argv[5];
+
+    // audio reader
+    wenet::WavReader wav_reader(wav_path);
+    int num_samples = wav_reader.num_samples();
+    std::vector<float> wav(wav_reader.data(), wav_reader.data() + num_samples);
+
+    // Setting config for handling waveform of audio, convert it to mel spectrogram of audio.
+    // Only support CTC_TYPE_MODEL.
+    wenet::FeaturePipelineConfig feature_config(num_bins, 16000, mode_type);
+    wenet::FeaturePipeline feature_pipeline(feature_config);
+    feature_pipeline.AcceptWaveform(wav);
+    feature_pipeline.set_input_finished();
+
+    wekws::KeywordSpotting spotter(model_path, wekws::DECODE_PREFIX_BEAM_SEARCH, mode_type);
+    spotter.readToken(token_path);
+    if(mode_type==1){
+        // set keyword
+        spotter.setKeyWord(key_word);
+    }
+
+    // Simulate streaming, detect batch by batch
+    int offset = 0;
+    while (true) {
+        std::vector<std::vector<float>> feats;
+        bool ok = feature_pipeline.Read(batch_size, &feats);
+        std::vector<std::vector<float>> probs; //
+        spotter.Forward(feats, &probs);
+
+        if(mode_type==1){
+            // Reach the end of feature pipeline
+            spotter.decode_keywords(offset*feature_config.downsampling, probs);
+            bool flag = spotter.execute_detection();
+        }else{
+            int flag = 0;
+            float threshold = 0.8; // > threshold  means keyword activated. < threshold means not.
+            for (int i = 0; i < probs.size(); i++) {
+                std::cout << "frame " << offset + i << " prob";
+                for (int j = 0; j < probs[i].size(); j++) { // size()=number of keywords.
+
+                    std::cout << " " << probs[i][j];
+                    if (probs[i][j] > threshold){
+                        std::cout << " activated keyword: " << spotter.mmaxpooling_keywords[j] << " ";
+                    }
+                }
+                std::cout << std::endl;
+            }
+        }
+
+        if (!ok) break;
+        offset += probs.size();
+    }
+    return 0;
+}
