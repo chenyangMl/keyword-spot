@@ -24,7 +24,7 @@
 
 ```shell
 git clone https://github.com/chenyangMl/keyword-spot.git
-cd onnxruntime
+cd keyword-spot/onnxruntime/
 mkdir build && cd build 
 cmake .. 
 cmake --build . --target kws_main  
@@ -37,7 +37,11 @@ cmake --build . --target kws_main
 ## Max-Pooling方案模型
 
 ```
+cd build/bin
 ./kws_main 0 40 1 path_to_your_model.ort path_to_your_wave.wav
+
+#eg
+./kws_main 0 40 1 keyword-spot-dstcn-maxpooling-wenwen/onnx/keyword-spot-dstcn-maxpooling-wenwen.ort ../../../audio/0000c7286ebc7edef1c505b78d5ed1a3.wav
 ```
 
 
@@ -45,7 +49,11 @@ cmake --build . --target kws_main
 ## CTC 方案模型
 
 ```
-./kws_main 0 80 1 path_to_your_model.ort path_to_your_wave.wav
+cd build/bin
+./kws_main 0 80 1 path_to_your_model.ort path_to_your_wave.wav [keyword]
+
+#eg
+./kws_main 1 80 1 keyword_spot_fsmn_ctc_wenwen/onnx/keyword_spot_fsmn_ctc_wenwen.ort ../../../audio/0000c7286ebc7edef1c505b78d5ed1a3.wav 你好小问
 ```
 
 更多详细信息参考: [onnx runtime](onnxruntime/README.md)
