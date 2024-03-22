@@ -83,11 +83,11 @@ xxx
 
 ## 模型列表
 
-| 损失函数    | 模型名称         | 模型(Pytorch ckpt)                                           | 模型(onnx) | 端侧模型 |
-| ----------- | ---------------- | ------------------------------------------------------------ | ---------- | -------- |
-| Max-Pooling | DS_TCN(你好问问) | [DSTCN-MaxPooling](https://modelscope.cn/models/thuduj12/kws_wenwen_dstcn/files) | 搭建ing    |          |
-|             |                  |                                                              |            |          |
-| CTC         | FSMN(你好问问)   | [FSMN-CTC](https://modelscope.cn/models/thuduj12/kws_wenwen_fsmn_ctc/files) | 搭建ing    |          |
+| 损失函数    | 模型名称         | 模型(Pytorch ckpt)                                           | 模型(ONNX)                                                   | 端侧模型                                                     |
+| ----------- | ---------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Max-Pooling | DS_TCN(你好问问) | [DSTCN-MaxPooling](https://modelscope.cn/models/daydream-factory/keyword-spot-dstcn-maxpooling-wenwen/files) | [ONNX](https://modelscope.cn/models/daydream-factory/keyword-spot-dstcn-maxpooling-wenwen/files) | [ORT](https://modelscope.cn/models/daydream-factory/keyword-spot-dstcn-maxpooling-wenwen/files) |
+|             |                  |                                                              |                                                              |                                                              |
+| CTC         | FSMN(你好问问)   | [FSMN-CTC](https://modelscope.cn/models/daydream-factory/keyword-spot-fsmn-ctc-wenwen/summar) | [ONNX](https://modelscope.cn/models/daydream-factory/keyword-spot-fsmn-ctc-wenwen/files) | [ORT](https://modelscope.cn/models/daydream-factory/keyword-spot-fsmn-ctc-wenwen/files) |
 
 
 
