@@ -1,0 +1,3 @@
+torch
+pyaml
+onnxruntime==1.12.1

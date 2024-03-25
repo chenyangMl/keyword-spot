@@ -39,3 +39,6 @@ tensorboard
 
 #third package
 fc_base/
+
+# 训练过程中产生的中间文件
+models/
