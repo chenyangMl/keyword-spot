@@ -7,14 +7,14 @@
 # Features
 
 - 支持CTC和Max-Pooling方案的唤醒词模型推理。
-- 支持模型转换，Pytorch2ONNX,  ONNX2ORT(端测部署)
+- 支持模型转换，Pytorch2ONNX,  ONNX2ORT(端侧部署)
 
 
 
 # Change Log
 
 - 2024/03/21 : 提供完整的CTC和Max-Pooling唤醒词方案的onnx模型cpp推理测试。
-- 2024/03/26:  提供模型转换工具，支持模型从Pytorch转换到onnx,再转换到ort用于端测部署。
+- 2024/03/26:  提供模型转换工具，支持模型从Pytorch转换到onnx,再转换到ort用于端侧部署。
 
 
 
