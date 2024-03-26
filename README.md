@@ -7,12 +7,14 @@
 # Features
 
 - 支持CTC和Max-Pooling方案的唤醒词模型推理。
+- 支持模型转换，Pytorch2ONNX,  ONNX2ORT(端测部署)
 
 
 
 # Change Log
 
 - 2024/03/21 : 提供完整的CTC和Max-Pooling唤醒词方案的onnx模型cpp推理测试。
+- 2024/03/26:  提供模型转换工具，支持模型从Pytorch转换到onnx,再转换到ort用于端测部署。
 
 
 
@@ -20,7 +22,7 @@
 
 # 推理测试
 
- CPP  ONNX推理测试.
+以下示例 CPP  ONNX推理测试.
 
 ```shell
 git clone https://github.com/chenyangMl/keyword-spot.git
@@ -60,6 +62,8 @@ cd build/bin
 
 
 
+如需要其他端测的推理测试，可参考wekws提供的[Android, RaspberryPI示例](https://github.com/wenet-e2e/wekws/tree/main/runtime)。
+
 
 
 # 模型训练
@@ -85,9 +89,11 @@ xxx
 
 | 损失函数    | 模型名称         | 模型(Pytorch ckpt)                                           | 模型(ONNX)                                                   | 端侧模型                                                     |
 | ----------- | ---------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Max-Pooling | DS_TCN(你好问问) | [DSTCN-MaxPooling](https://modelscope.cn/models/daydream-factory/keyword-spot-dstcn-maxpooling-wenwen/files) | [ONNX](https://modelscope.cn/models/daydream-factory/keyword-spot-dstcn-maxpooling-wenwen/files) | [ORT](https://modelscope.cn/models/daydream-factory/keyword-spot-dstcn-maxpooling-wenwen/files) |
+| Max-Pooling | DS_TCN(你好问问) | [DSTCN-MaxPooling, wekws训练](https://modelscope.cn/models/daydream-factory/keyword-spot-dstcn-maxpooling-wenwen/summary) | [ONNX](https://modelscope.cn/models/daydream-factory/keyword-spot-dstcn-maxpooling-wenwen/files) | [ORT](https://modelscope.cn/models/daydream-factory/keyword-spot-dstcn-maxpooling-wenwen/files) |
 |             |                  |                                                              |                                                              |                                                              |
-| CTC         | FSMN(你好问问)   | [FSMN-CTC](https://modelscope.cn/models/daydream-factory/keyword-spot-fsmn-ctc-wenwen/summar) | [ONNX](https://modelscope.cn/models/daydream-factory/keyword-spot-fsmn-ctc-wenwen/files) | [ORT](https://modelscope.cn/models/daydream-factory/keyword-spot-fsmn-ctc-wenwen/files) |
+| CTC         | FSMN(你好问问)   | [FSMN-CTC, wekws训练](https://modelscope.cn/models/daydream-factory/keyword-spot-fsmn-ctc-wenwen/summary) | [ONNX](https://modelscope.cn/models/daydream-factory/keyword-spot-fsmn-ctc-wenwen/files) | [ORT](https://modelscope.cn/models/daydream-factory/keyword-spot-fsmn-ctc-wenwen/files) |
+|             |                  |                                                              |                                                              |                                                              |
+| CTC         | FSMN(你好问问)   | [FSMN-CTC, modelscope训练](https://modelscope.cn/models/daydream-factory/keyword-spot-fsmn-ctc-nihaowenwen/summary) | [ONNX](https://modelscope.cn/models/daydream-factory/keyword-spot-fsmn-ctc-nihaowenwen/files) | [ORT](https://modelscope.cn/models/daydream-factory/keyword-spot-fsmn-ctc-nihaowenwen/files) |
 
 
 
@@ -97,7 +103,7 @@ xxx
 
 ## 参考＆鸣谢
 
-  本工程主要是基于[wekws](https://github.com/wenet-e2e/wekws/tree/main)进行构建的，特此感谢。
+  本工程主要基于[wekws](https://github.com/wenet-e2e/wekws/tree/main)进行语音唤醒的模型训练，模型转换，推理，部署等流程构建，特此感谢。
 
 - [Sequence Modeling With CTC](https://distill.pub/2017/ctc/)  : CTC的设计思路和原理。
 - [魔搭: 你好问问 唤醒词检测体验测试Demo](https://modelscope.cn/studios/thuduj12/KWS_Nihao_Xiaojing/summary)
@@ -108,4 +114,3 @@ xxx
 # [License](./LICENSE)
 
 MIT
-
