@@ -8,13 +8,14 @@
 
 - 支持CTC和Max-Pooling方案的唤醒词模型推理。
 - 支持模型转换，Pytorch2ONNX,  ONNX2ORT(端侧部署)
+- 支持CPP onnxruntime流式推理.
 
 
 
 # Change Log
 
 - 2024/03/21 : 提供完整的CTC和Max-Pooling唤醒词方案的onnx模型cpp推理测试。
-- 2024/03/26:  提供模型转换工具，支持模型从Pytorch转换到onnx,再转换到ort用于端侧部署。
+- 2024/03/26:  提供模型转换工具，支持模型从Pytorch转换到onnx,再转换到ort用于端侧部署。支持CPP onnxruntime流式推理.
 
 
 
@@ -40,7 +41,7 @@ cmake --build . --target kws_main
 
 ```
 cd build/bin
-./kws_main 0 40 1 path_to_your_model.ort path_to_your_wave.wav
+./kws_main [solution_type, int] [num_bins, int] [batch_size, int] [model_path, str] [wave_path,str]
 
 #eg
 ./kws_main 0 40 1 keyword-spot-dstcn-maxpooling-wenwen/onnx/keyword-spot-dstcn-maxpooling-wenwen.ort ../../../audio/0000c7286ebc7edef1c505b78d5ed1a3.wav
@@ -52,13 +53,17 @@ cd build/bin
 
 ```
 cd build/bin
-./kws_main 0 80 1 path_to_your_model.ort path_to_your_wave.wav [keyword]
+./kws_main [solution_type, int] [num_bins, int] [batch_size, int] [model_path, str] [wave_path,str] [key_word,str]
 
 #eg
 ./kws_main 1 80 1 keyword_spot_fsmn_ctc_wenwen/onnx/keyword_spot_fsmn_ctc_wenwen.ort ../../../audio/0000c7286ebc7edef1c505b78d5ed1a3.wav 你好小问
 ```
 
 更多详细信息参考: [onnx runtime](onnxruntime/README.md)
+
+PS: solution_type:{0:表示max-pooling方案, 1:表示ctc方案}
+
+​     key_word: {你好小问，嗨小问}
 
 
 
