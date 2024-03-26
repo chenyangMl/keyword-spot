@@ -32,29 +32,33 @@ int main(int argc, char *argv[]) {
         mode_type = (wenet::MODEL_TYPE)std::stoi(argv[1]);
         if(mode_type==wenet::CTC_TYPE_MODEL){
             if (argc != 7) {
-                LOG(FATAL) << "Usage: kws_main\n mode_type 1 num_bins [int] batch_size [int]) "
-                           << "model_path [string] wav_path [string] key_word [string]"   ;
+                LOG(FATAL) << "Usage: kws_main\n ./kws_main [solution_type, int] [num_bins, int] "
+                << "[batch_size, int] [model_path, str] [wave_path,str] [key_word,str]"   ;
             }
             // Input Arguments.
             key_word = argv[6];
             token_path = "../../kws/tokens.txt";
         } else if (mode_type == wenet::MAXPOOLING_TYPE_MODEL){
             if (argc != 6) {
-                LOG(FATAL) << "Usage: kws_main\n mode_type 0 num_bins [int] batch_size [int]) "
-                           << "model_path [string] wav_path [string] key_word [string]"   ;
+                LOG(FATAL) << "Usage: kws_main\n [solution_type, int] [num_bins, int] "
+                <<"[batch_size, int] [model_path, str] [wave_path,str]" ;
             }
             token_path = "../../kws/maxpooling_keyword.txt";
         }
     }else{
-        LOG(FATAL) << "Usage: kws_main\n num_bins [int] batch_size [int]) "
-                   << "model_path [string] wav_path [string] key_word [string]"   ;
+        LOG(FATAL) << "Usage: kws_main\n [solution_type, int] [num_bins, int] "
+                   <<"[batch_size, int] [model_path, str] [wave_path,str]" ;
     }
 
     // Input Arguments.
     const int num_bins = std::stoi(argv[2]);             // num_mel_bins in config.yaml. means dim of Fbank feature.
     const int batch_size = std::stoi(argv[3]);
+    if(batch_size < 1){
+        LOG(FATAL) << "batch_size should greater than 0, it's equal to " << batch_size << "now";
+    }
     const std::string model_path = argv[4];
     const std::string wav_path = argv[5];
+
 
     // audio reader
     wenet::WavReader wav_reader(wav_path);

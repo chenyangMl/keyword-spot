@@ -30,9 +30,11 @@ cmake --build . --target kws_main
 
 ## Max-Pooling方案模型
 
+- 非流式模式
+
 ```
 cd build/bin
-./kws_main 0 40 1 path_to_your_model.ort path_to_your_wave.wav
+./kws_main [solution_type, int] [num_bins, int] [batch_size, int] [model_path, str] [wave_path,str]
 
 #eg
 ./kws_main 0 40 1 keyword-spot-dstcn-maxpooling-wenwen/onnx/keyword-spot-dstcn-maxpooling-wenwen.ort ../../../audio/0000c7286ebc7edef1c505b78d5ed1a3.wav
@@ -75,11 +77,31 @@ cd build/bin
 
 
 
+- 流式模式
+
+  
+
+```
+#测试流式模式，请先编译流式模块。
+cd build/
+cmake --build . --target kws_main  
+
+cd build/bin
+./stream_kws_main [solution_type, int] [num_bins, int] [batch_size, int] [model_path, str] [wave_path,str]
+
+#eg
+./stream_kws_main 0 40 80 keyword-spot-dstcn-maxpooling-wenwen/onnx/keyword-spot-dstcn-maxpooling-wenwen.ort
+```
+
+PS: 需要提前接入麦克风进行音频输入。
+
+
+
 ## CTC 方案模型
 
 ```
 cd build/bin
-./kws_main 0 80 1 path_to_your_model.ort path_to_your_wave.wav [keyword]
+./kws_main [solution_type, int] [num_bins, int] [batch_size, int] [model_path, str] [wave_path,str] [key_word,str]
 
 #eg
 ./kws_main 1 80 1 keyword_spot_fsmn_ctc_wenwen/onnx/keyword_spot_fsmn_ctc_wenwen.ort ../../../audio/0000c7286ebc7edef1c505b78d5ed1a3.wav 你好小问
@@ -88,8 +110,6 @@ cd build/bin
 测试日志: 如下是CTC prefix beam search的
 
  frame表示当前处理的time step. tokenid:表示当前帧识别到的Token ID.  proposed:表示基于当前假设(current hypotheses) 的扩展(proposed extensions). 建议参考图示[Sequence Modeling With CTC](https://distill.pub/2017/ctc/) 理解。prob表示该token的分类概率。
-
-
 
 ```
 Kws Model Info:
@@ -123,3 +143,26 @@ stepT=165 tokenid=   0 proposed i=0 prob=1
 Process finished with exit code 0
 ```
 
+
+
+- 流式模式
+
+```
+#测试流式模式，请先编译流式模块。
+cd build/
+cmake --build . --target kws_main
+
+cd build/bin
+./stream_kws_main [solution_type, int] [num_bins, int] [batch_size, int] [model_path, str] [wave_path,str] [key_word, str]
+
+#eg
+./stream_kws_main 1 80 80 keyword-spot-dstcn-maxpooling-wenwen/onnx/keyword-spot-dstcn-maxpooling-wenwen.ort
+```
+
+PS: 
+
+- solution_type:{0:表示max-pooling方案, 1:表示ctc方案}
+- key_word: {你好小问，嗨小问}
+- 需要提前接入麦克风进行音频输入。
+
+如需要其他端测的推理测试，可参考wekws提供的[Android, RaspberryPI示例](https://github.com/wenet-e2e/wekws/tree/main/runtime)。
