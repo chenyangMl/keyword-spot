@@ -104,7 +104,7 @@ cd build/bin
 ./kws_main [solution_type, int] [num_bins, int] [batch_size, int] [model_path, str] [wave_path,str] [key_word,str]
 
 #eg
-./kws_main 1 80 1 keyword_spot_fsmn_ctc_wenwen/onnx/keyword_spot_fsmn_ctc_wenwen.ort ../../../audio/0000c7286ebc7edef1c505b78d5ed1a3.wav 你好小问
+./kws_main 1 80 1 keyword_spot_fsmn_ctc_wenwen/onnx/keyword_spot_fsmn_ctc_wenwen.ort ../../../audio/0000c7286ebc7edef1c505b78d5ed1a3.wav 你好问问
 ```
 
 测试日志: 如下是CTC prefix beam search的
@@ -125,7 +125,7 @@ stepT= 12 tokenid=   0 proposed i=0 prob=0.801
 
 stepT=129 tokenid=   0 proposed i=0 prob=1
 stepT=132 tokenid=2494 proposed i=0 prob=0.954
-hitword=你好小问
+hitword=你好问问
 hitscore=0.954
 start frame=69 end frame=132
 stepT=135 tokenid=2494 proposed i=0 prob=1
@@ -162,7 +162,7 @@ cd build/bin
 PS: 
 
 - solution_type:{0:表示max-pooling方案, 1:表示ctc方案}
-- key_word: {你好小问，嗨小问}
+- key_word: {你好问问，嗨小问}
 - 需要提前接入麦克风进行音频输入。
 
-如需要其他端测的推理测试，可参考wekws提供的[Android, RaspberryPI示例](https://github.com/wenet-e2e/wekws/tree/main/runtime)。
+如需要其他端测的推理测试，可参考wekws提供的[Android, RaspberryPI示例](https://github.com/wenet-e2e/wekws/tree/main/runtime)。T
