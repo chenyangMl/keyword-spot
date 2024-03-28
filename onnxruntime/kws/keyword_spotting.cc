@@ -194,6 +194,7 @@ namespace wekws {
     void KeywordSpotting::UpdateHypotheses(const std::vector<std::pair<std::vector<int>, PrefixScore>> &hpys) {
         cur_hyps_.clear();
         for (auto &item: hpys) {
+            // std::vector<int> prefix =  item.first;
             if (item.first.empty()) {
                 PrefixScore prefix_score;
                 prefix_score.s = 1.0;
@@ -201,10 +202,18 @@ namespace wekws {
                 std::vector<int> empty;
                 cur_hyps_[empty] = prefix_score;
             } else {
+                // filter illegal prefix case.
+                if(item.first.size() > mkeyword_token.size()) {
+                    continue;
+                }
                 cur_hyps_[item.first] = item.second;
             }
-
         }
+        // assert cur_hyps_ is not empty()
+        if (!cur_hyps_.empty()){
+            cur_hyps_[std::vector<int>()] = PrefixScore{1.0, 0.0};
+        }
+
     }
 
     void KeywordSpotting::decode_keywords(int stepT, std::vector<std::vector<float>> &probs) {
@@ -217,7 +226,8 @@ namespace wekws {
         } else if (mdecode_type == DECODE_PREFIX_BEAM_SEARCH) {
             // std::cout << "DECODE_PREFIX_BEAM_SEARCH" << std::endl;
             for (const auto &prob: probs) {
-                decode_ctc_prefix_beam_search(stepT, prob);
+                mGTimeStep += 1;
+                decode_ctc_prefix_beam_search(mGTimeStep, prob);
             }
         } else {
             std::cerr << "Not implement yet now.";
@@ -262,8 +272,8 @@ namespace wekws {
          * https://robin1001.github.io/2020/12/11/ctc-search
          * */
 
+//        std::cout << "stepT=" << std::setw(3) << stepT << std::endl;
         if (probv.size() == 0) return;
-
         std::unordered_map<std::vector<int>, PrefixScore, PrefixHash> next_hyps;
 
         // 1. First beam prune, only select topk candidates
@@ -301,7 +311,7 @@ namespace wekws {
                 for (const auto &it: cur_hyps_) {
                     const std::vector<int> &prefix = it.first;
                     const PrefixScore &prefix_score = it.second;
-//                    print_vector(prefix);
+                    //print_vector(prefix);
                     if (tokenId == opts_.blank) {
                         // handle ending with blank token. eg 你好问 + ε ->你好问
                         PrefixScore &next_score = next_hyps[prefix];
@@ -336,12 +346,13 @@ namespace wekws {
 
                     } else {
                         //std::cout << "##Not see Token" << std::endl;
+
                         std::vector<int> next_prefix(prefix);
                         next_prefix.push_back(tokenId);
                         PrefixScore &next_score3 = next_hyps[next_prefix];
 
                         if (!next_score3.nodes.empty()) {
-                            // update prob of same token.
+                            // update prob of same token
                             if (ps > next_score3.nodes.back().prob) {
                                 next_score3.nodes.pop_back();
                                 Token curToken = {stepT, tokenId, ps};
@@ -396,7 +407,7 @@ namespace wekws {
                     }
                 }
                 if (flag == 1) {
-                    cur_hyps_.erase(prefix);
+                    cur_hyps_.clear();
                     break;
                 }
             }
@@ -421,4 +432,7 @@ namespace wekws {
         return flag;
     }
 
+    void KeywordSpotting::stepClear(){
+        mGTimeStep = 0;
+    }
 }  // namespace wekws

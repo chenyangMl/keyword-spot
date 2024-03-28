@@ -23,6 +23,7 @@
 #include "frontend/wav.h"
 #include "kws/keyword_spotting.h"
 #include "utils/log.h"
+#include <chrono>
 
 int g_exiting = 0;
 std::shared_ptr<wenet::FeaturePipeline> g_feature_pipeline;
@@ -116,17 +117,24 @@ int main(int argc, char *argv[]) {
 
     std::cout << std::setiosflags(std::ios::fixed) << std::setprecision(2);
     int offset = 0;
+
+    auto start = std::chrono::high_resolution_clock::now();
     while (Pa_IsStreamActive(stream)) {
         Pa_Sleep(interval);
         std::vector<std::vector<float>> feats;
         g_feature_pipeline->Read(batch_size, &feats);
         std::vector<std::vector<float>> probs;
         spotter.Forward(feats, &probs);
+
+
         // detection key-words
         if (mode_type == 1) {
             // Reach the end of feature pipeline
-            spotter.decode_keywords(offset * feature_config.downsampling, probs);
+            spotter.decode_keywords(offset, probs); // feature_config.downsampling=3
             bool flag = spotter.execute_detection();
+            if (flag == 1) {
+                spotter.stepClear();
+            }
         } else {
             for (int t = 0; t < probs.size(); t++) {
                 std::cout << "keywords prob:";
@@ -139,7 +147,10 @@ int main(int argc, char *argv[]) {
                 std::cout << std::endl;
             }
         }
-        offset += probs.size();
+        offset += probs.size(); // processing frames of forward, with batch_size.
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> diff = end - start;
+        std::cout << "Running time: " << diff.count() << " s\n";
 
     }
     Pa_CloseStream(stream);

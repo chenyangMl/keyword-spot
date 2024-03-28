@@ -141,6 +141,7 @@ namespace wenet {
 
         std::vector<std::vector<float>> feature_remained;
 
+
     };
 
 }  // namespace wenet

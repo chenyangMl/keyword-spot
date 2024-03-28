@@ -37,7 +37,7 @@ namespace wekws {
     struct CtcPrefixBeamSearchOptions {
         int blank = 0;                // blank id of vocab list.
         int first_beam_size = 3;
-        int second_beam_size = 5;
+        int second_beam_size = 3;
     };
 
     struct PrefixHash {
@@ -106,6 +106,8 @@ namespace wekws {
         // maxpooling keywords
         std::vector<std::string> mmaxpooling_keywords;
 
+        //time stemp reset
+        void stepClear();
 
     private:
         // onnx runtime session
@@ -152,7 +154,12 @@ namespace wekws {
         //ctc prefix beam search
         const CtcPrefixBeamSearchOptions opts_={0, 3, 10};
 
+        // silence time, 1s audio = 99frames melFbank. with default frame_shift(10ms) and frame_length(25ms).
+        // Now we set silenceFrames = 3s * 99 = 297.
+        //int mSilenceFrames = 297;
 
+        //global Time step.
+        int mGTimeStep = 0;
     };
 
 

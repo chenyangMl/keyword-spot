@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
 
         if(mode_type==1){
             // Reach the end of feature pipeline
-            spotter.decode_keywords(offset*feature_config.downsampling, probs);
+            spotter.decode_keywords(offset, probs); // feature_config.downsampling
             bool flag = spotter.execute_detection();
         }else{
             int flag = 0;
