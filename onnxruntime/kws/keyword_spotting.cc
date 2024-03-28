@@ -308,10 +308,10 @@ namespace wekws {
                 float ps = probv[tokenId]; // prob of token
                 std::cout << "stepT=" << std::setw(3) << stepT << " tokenid=" << std::setw(4) << tokenId \
                 << " proposed i=" << i << " prob=" << std::setprecision(3)  << ps  << std::endl;
-                for (const auto &it: cur_hyps_) {
+                for (const auto &it: cur_hyps_) {//Fixing bug that can't be wakeup in stream-mode"
                     const std::vector<int> &prefix = it.first;
                     const PrefixScore &prefix_score = it.second;
-                    //print_vector(prefix);
+                    print_vector(prefix);
                     if (tokenId == opts_.blank) {
                         // handle ending with blank token. eg 你好问 + ε ->你好问
                         PrefixScore &next_score = next_hyps[prefix];
@@ -388,7 +388,7 @@ namespace wekws {
 
     }
 
-    bool KeywordSpotting::execute_detection() {
+    bool KeywordSpotting::execute_detection(float hitScoreThr) {
         /*　对当前输出的prfix串和关键词进行对比，判断是否唤醒.
          * */
         int start, end, flag = 0;
@@ -408,6 +408,7 @@ namespace wekws {
                 }
                 if (flag == 1) {
                     cur_hyps_.clear();
+                    reset_value();
                     break;
                 }
             }
@@ -423,11 +424,12 @@ namespace wekws {
             }
         }
         // find keyword in predicted sequence.
-        if (flag == 1) {
+        if (flag == 1 && hit_score >hitScoreThr) {
             std::cout << "hitword=" << mkey_word << std::endl;
             std::cout << "hitscore=" << hit_score << std::endl;
+            std::cout << "hitScoreThr=" << hitScoreThr << std::endl;
             std::cout << "start frame=" << start << " end frame=" << end << std::endl;
-            reset_value();
+
         }
         return flag;
     }

@@ -95,7 +95,7 @@ namespace wekws {
         void decode_ctc_prefix_beam_search(int offset, const std::vector<float> &prob);
 
         // find keyword
-        bool execute_detection();
+        bool execute_detection(float hitScoreThr=0.5);
 
         // Token is keyword or not.
         bool isKeyword(int index);
