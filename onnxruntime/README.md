@@ -22,8 +22,8 @@ cmake --build . --target kws_main
 | --------------------------------------- | -------------- |
 | 000af5671fdbaa3e55c5e2bd0bdf8cdd_hi.wav | 嗨小问         |
 | 000eae543947c70feb9401f82da03dcf_hi.wav | 嗨小问         |
-| 0000c7286ebc7edef1c505b78d5ed1a3.wav    | 你好小问       |
-| 0000e12e2402775c2d506d77b6dbb411.wav    | 你好小问       |
+| 0000c7286ebc7edef1c505b78d5ed1a3.wav    | 你好问问       |
+| 0000e12e2402775c2d506d77b6dbb411.wav    | 你好问问       |
 | gongqu-4.5_0000.wav                     | 其他(测试负例) |
 
 
@@ -156,7 +156,7 @@ cd build/bin
 ./stream_kws_main [solution_type, int] [num_bins, int] [batch_size, int] [model_path, str] [wave_path,str] [key_word, str]
 
 #eg
-./stream_kws_main 1 80 80 keyword-spot-dstcn-maxpooling-wenwen/onnx/keyword-spot-dstcn-maxpooling-wenwen.ort
+./stream_kws_main 1 80 80 models/keyword-spot-fsmn-ctc-wenwen/onnx/keyword_spot_fsmn_ctc_wenwen.ort
 ```
 
 PS: 
