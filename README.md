@@ -15,7 +15,8 @@
 # Change Log
 
 - 2024/03/21 : 提供完整的CTC和Max-Pooling唤醒词方案的onnx模型cpp推理测试。
-- 2024/03/26:  提供模型转换工具，支持模型从Pytorch转换到onnx,再转换到ort用于端侧部署。支持CPP onnxruntime流式推理.
+- 2024/03/26:  提供模型转换工具，支持模型从Pytorch转换到onnx,再转换到ort用于端侧部署。支持CPP onnxruntime流式推理。
+- 2024/04/17:  提供模型训练方法。
 
 
 
@@ -73,7 +74,7 @@ PS: solution_type:{0:表示max-pooling方案, 1:表示ctc方案}
 
 # 模型训练
 
-xxx
+详细内容参考 [唤醒词自定义和模型训练](docs/model_train.md)。
 
 
 

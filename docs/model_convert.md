@@ -162,13 +162,6 @@ models/keyword-spot-fsmn-ctc-wenwen
 
 
 
-1. 模型下载
-
-```
-git clone https://www.modelscope.cn/iic/speech_charctc_kws_phone-wenwen.git
-
-```
-
 
 
 ## 模型可视化工具netron
