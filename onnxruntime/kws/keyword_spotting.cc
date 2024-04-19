@@ -391,8 +391,9 @@ namespace wekws {
     bool KeywordSpotting::execute_detection(float hitScoreThr) {
         /*　对当前输出的prfix串和关键词进行对比，判断是否唤醒.
          * */
-        int start, end, flag = 0;
+        int start, end;
         float hit_score = 1.0;
+        bool flag = false;
 
         if (mdecode_type == wekws::DECODE_PREFIX_BEAM_SEARCH) {
             for (const auto &it: cur_hyps_) {
@@ -400,13 +401,13 @@ namespace wekws {
                 const std::vector<Token> &nodes = it.second.nodes;
                 if (!prefix.empty() && prefix.size() == mkeyword_token.size()) {
                     for (auto i = 0; i < prefix.size(); i++) {
-                        flag = (prefix[i] != mkeyword_token[i]) ? 0 : 1;
+                        flag = (prefix[i] != mkeyword_token[i]) ? false : true;
                         hit_score *= nodes[i].prob;
                         if (i == 0) start = nodes[i].timeStep;
                         if (i == nodes.size() - 1) end = nodes[i].timeStep;
                     }
                 }
-                if (flag == 1) {
+                if (flag == true) {
                     cur_hyps_.clear();
                     reset_value();
                     break;
@@ -416,7 +417,7 @@ namespace wekws {
             //  std::cout << "cur_hyps size: " << cur_hyps.size() << " kws size: " << this->mkws_ids.size() <<std::endl;
             if (!gd_cur_hyps.empty() && mkeyword_token.size() == gd_cur_hyps.size()) {
                 for (auto i = 0; i < gd_cur_hyps.size(); i++) {
-                    flag = (gd_cur_hyps[i].id != mkeyword_token[i]) ? 0 : 1;
+                    flag = (gd_cur_hyps[i].id != mkeyword_token[i]) ? false : true;
                     hit_score *= gd_cur_hyps[i].prob;
                     if (i == 0) start = gd_cur_hyps[i].timeStep;
                     if (i == gd_cur_hyps.size() - 1) end = gd_cur_hyps[i].timeStep;
@@ -424,11 +425,10 @@ namespace wekws {
             }
         }
         // find keyword in predicted sequence.
-        if (flag == 1 && hit_score >hitScoreThr) {
-            std::cout << "hitword=" << mkey_word << std::endl;
-            std::cout << "hitscore=" << hit_score << std::endl;
-            std::cout << "hitScoreThr=" << hitScoreThr << std::endl;
-            std::cout << "start frame=" << start << " end frame=" << end << std::endl;
+        if (flag == true && hit_score >hitScoreThr) {
+            std::cout << "hitword=" << mkey_word << " hitscore=" << hit_score
+            << " hitScoreThr=" << hitScoreThr << "start frame=" << start
+            << " end frame=" << end << std::endl;
 
         }
         return flag;

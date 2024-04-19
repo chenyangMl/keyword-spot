@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
         if (mode_type == 1) {
             // Reach the end of feature pipeline
             spotter.decode_keywords(offset, probs); // feature_config.downsampling=3
-            bool flag = spotter.execute_detection();
+            bool flag = spotter.execute_detection(0.1, 1);
             if (flag == 1) {
                 spotter.stepClear();
             }

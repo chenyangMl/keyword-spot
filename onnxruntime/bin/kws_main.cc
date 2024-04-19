@@ -21,6 +21,33 @@
 #include "frontend/wav.h"
 #include "kws/keyword_spotting.h"
 #include "utils/log.h"
+#include <boost/filesystem.hpp>  //apt-get install libboost-all-dev
+
+
+void read_pcm(const std::string& file_path, std::vector<float>& pcm_float){
+    std::ifstream pcm_file(file_path, std::ios::binary | std::ios::ate);
+
+    if (!pcm_file.is_open()) {
+        std::cout << "Failed to open PCM file." << std::endl;
+    }
+
+    // 获取文件大小
+    std::streampos file_size = pcm_file.tellg();
+    pcm_file.seekg(0, std::ios::beg);
+
+    // 读取PCM数据
+    std::vector<char> pcm_data(file_size);
+    pcm_file.read(pcm_data.data(), file_size);
+    pcm_file.close();
+
+    // 将PCM数据转换为float数据
+    const int16_t* pcm_data_ptr = reinterpret_cast<const int16_t*>(pcm_data.data());
+    int sample_count = file_size / sizeof(int16_t);
+
+    for (int i = 0; i < sample_count; ++i) {
+        pcm_float.push_back(static_cast<float>(pcm_data_ptr[i]));
+    }
+}
 
 
 int main(int argc, char *argv[]) {
@@ -60,10 +87,18 @@ int main(int argc, char *argv[]) {
     const std::string wav_path = argv[5];
 
 
-    // audio reader
-    wenet::WavReader wav_reader(wav_path);
-    int num_samples = wav_reader.num_samples();
-    std::vector<float> wav(wav_reader.data(), wav_reader.data() + num_samples);
+    boost::filesystem::path wavpath(wav_path);
+    std::vector<float> wav;
+    if (wavpath.extension() == ".wav"){
+        // audio reader
+        wenet::WavReader wav_reader(wav_path);
+        int num_samples = wav_reader.num_samples();
+        wav.assign(wav_reader.data(), wav_reader.data() + num_samples);
+    }else if (wavpath.extension() == ".pcm"){
+        read_pcm(wav_path, wav);
+    }else{
+        LOG(FATAL) << "Not support format = " << wavpath.extension();
+    }
 
     // Setting config for handling waveform of audio, convert it to mel spectrogram of audio.
     // Only support CTC_TYPE_MODEL.

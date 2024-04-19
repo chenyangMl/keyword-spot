@@ -153,7 +153,7 @@ cd build/
 cmake --build . --target kws_main
 
 cd build/bin
-./stream_kws_main [solution_type, int] [num_bins, int] [batch_size, int] [model_path, str] [wave_path,str] [key_word, str]
+./stream_kws_main [solution_type, int] [num_bins, int] [batch_size, int] [model_path, str] 
 
 #eg
 ./stream_kws_main 1 80 80 models/keyword-spot-fsmn-ctc-wenwen/onnx/keyword_spot_fsmn_ctc_wenwen.ort
