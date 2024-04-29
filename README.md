@@ -7,8 +7,9 @@
 # Features
 
 - 支持CTC和Max-Pooling方案的唤醒词模型推理。
-- 支持模型转换，Pytorch2ONNX,  ONNX2ORT(端侧部署)
-- 支持CPP onnxruntime流式推理.
+- 支持模型转换，Pytorch2ONNX,  ONNX2ORT(端侧部署)。
+- 支持CPP onnxruntime流式推理。
+- 非流式测试：支持wav、pcm格式的音频输入。
 
 
 
@@ -58,6 +59,8 @@ cd build/bin
 
 #eg
 ./kws_main 1 80 1 keyword_spot_fsmn_ctc_wenwen/onnx/keyword_spot_fsmn_ctc_wenwen.ort ../../../audio/0000c7286ebc7edef1c505b78d5ed1a3.wav 你好问问
+
+./kws_main 1 80 1 keyword_spot_fsmn_ctc_wenwen/onnx/keyword_spot_fsmn_ctc_wenwen.ort ../../../audio/000af5671fdbaa3e55c5e2bd0bdf8cdd_hi.pcm 嗨小问
 ```
 
 更多详细信息参考: [onnx runtime](onnxruntime/README.md)

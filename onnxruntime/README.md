@@ -25,6 +25,7 @@ cmake --build . --target kws_main
 | 0000c7286ebc7edef1c505b78d5ed1a3.wav    | 你好问问       |
 | 0000e12e2402775c2d506d77b6dbb411.wav    | 你好问问       |
 | gongqu-4.5_0000.wav                     | 其他(测试负例) |
+| 000af5671fdbaa3e55c5e2bd0bdf8cdd_hi.pcm | 嗨小问         |
 
 
 
@@ -150,7 +151,7 @@ Process finished with exit code 0
 ```
 #测试流式模式，请先编译流式模块。
 cd build/
-cmake --build . --target kws_main
+cmake --build . --target stream_kws_main
 
 cd build/bin
 ./stream_kws_main [solution_type, int] [num_bins, int] [batch_size, int] [model_path, str] 
@@ -166,3 +167,24 @@ PS:
 - 需要提前接入麦克风进行音频输入。
 
 如需要其他端测的推理测试，可参考wekws提供的[Android, RaspberryPI示例](https://github.com/wenet-e2e/wekws/tree/main/runtime)。T
+
+
+
+- 流式模式测试文件目录。
+
+对一个目录中的wav文件进行批量测试，音频输入形式模拟流式处理。
+
+```
+#测试流式模式，请先编译流式模块。
+cd build/
+cmake --build . --target stream_kws_testing
+
+cd build/bin
+./stream_kws_testing [solution_type, int] [num_bins, int] [model_path, str] [test_dir, str] [interval, int]
+test_dir: 测试目录。
+interval: 音频输入的间隔,ms为单位。
+
+#eg
+./stream_kws_testing 1 80 models/keyword-spot-fsmn-ctc-wenwen/onnx/keyword_spot_fsmn_ctc_wenwen.ort audio/ 200
+```
+
