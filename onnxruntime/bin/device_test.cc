@@ -1,3 +1,7 @@
+/*
+ * 检测输入的麦克风设备是否正常接入。
+ * */
+
 #include <portaudio.h>
 #include <iostream>
 
@@ -6,7 +10,9 @@ int main()
     Pa_Initialize();
 
     int devices = Pa_GetDeviceCount();
-    std::cout << devices << std::endl;
+    if (devices==0){
+        std::cout << "Not find audio input device." << std::endl;
+    }
 
     for (int i = 0; i != devices; ++i)
     {

@@ -20,7 +20,6 @@
 #include "portaudio.h"  // NOLINT
 
 #include "frontend/feature_pipeline.h"
-#include "frontend/wav.h"
 #include "kws/keyword_spotting.h"
 #include "utils/log.h"
 #include <chrono>
@@ -116,9 +115,8 @@ int main(int argc, char *argv[]) {
     LOG(INFO) << "=== Now recording!! Please speak into the microphone. ===";
 
     std::cout << std::setiosflags(std::ios::fixed) << std::setprecision(2);
-    int offset = 0;
-
     auto start = std::chrono::high_resolution_clock::now();
+
     while (Pa_IsStreamActive(stream)) {
         Pa_Sleep(interval);
         std::vector<std::vector<float>> feats;
@@ -126,15 +124,11 @@ int main(int argc, char *argv[]) {
         std::vector<std::vector<float>> probs;
         spotter.Forward(feats, &probs);
 
-
         // detection key-words
         if (mode_type == 1) {
-            // Reach the end of feature pipeline
-            spotter.decode_keywords(offset, probs); // feature_config.downsampling=3
-            bool flag = spotter.execute_detection(0.1, 1);
-            if (flag == 1) {
-                spotter.stepClear();
-            }
+            float hitScoreThr = 0.1;    // threshold of hit score.
+            spotter.decode_keywords(probs, hitScoreThr);
+
         } else {
             for (int t = 0; t < probs.size(); t++) {
                 std::cout << "keywords prob:";
@@ -147,11 +141,9 @@ int main(int argc, char *argv[]) {
                 std::cout << std::endl;
             }
         }
-        offset += probs.size(); // processing frames of forward, with batch_size.
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> diff = end - start;
         std::cout << "Running time: " << diff.count() << " s\n";
-
     }
     Pa_CloseStream(stream);
     Pa_Terminate();

@@ -17,7 +17,7 @@
 //
 
 #include "kws/utils.h"
-#include <queue>
+
 
 namespace wekws {
 
@@ -66,5 +66,60 @@ namespace wekws {
                               std::vector<float>* values,
                               std::vector<int>* indices);
 
+
+    //读取PCM音频文件为vector
+    void read_pcm(const std::string& file_path, std::vector<float>& pcm_float){
+        std::ifstream pcm_file(file_path, std::ios::binary | std::ios::ate);
+
+        if (!pcm_file.is_open()) {
+            throw std::runtime_error("Failed to open file:" + file_path); // 抛出异常
+        }
+
+        // 获取文件大小
+        std::streampos file_size = pcm_file.tellg();
+        pcm_file.seekg(0, std::ios::beg);
+
+        // 读取PCM数据
+        std::vector<char> pcm_data(file_size);
+        pcm_file.read(pcm_data.data(), file_size);
+        pcm_file.close();
+
+        // 将PCM数据转换为float数据
+        const int16_t* pcm_data_ptr = reinterpret_cast<const int16_t*>(pcm_data.data());
+        int sample_count = file_size / sizeof(int16_t);
+
+        for (int i = 0; i < sample_count; ++i) {
+            pcm_float.push_back(static_cast<float>(pcm_data_ptr[i]));
+        }
+    }
+
+    void process_directory(const boost::filesystem::path &dirpath, std::vector<std::string> &wavePaths) {
+        /*递归读取目录和子目录中的wav文件
+         * */
+        for (boost::filesystem::directory_iterator it(dirpath); it != boost::filesystem::directory_iterator(); ++it) {
+            const boost::filesystem::path &path = it->path();
+            if (boost::filesystem::is_regular_file(path) && path.extension() == ".wav") {
+                // 读取 WAV 文件
+                //std::cout << "读取 WAV 文件：" << path.string() << std::endl;
+                wavePaths.push_back(path.string());
+            } else if (boost::filesystem::is_directory(path)) {
+                // 递归处理子目录
+                process_directory(path, wavePaths);
+            }
+        }
+    }
+
+    void writeVectorToFile(const std::vector<std::string>& data, const std::string& filename) {
+        std::ofstream file(filename);
+
+        if (file.is_open()) {
+            for (const auto& line : data) {
+                file << line << std::endl;
+            }
+            file.close();
+        } else {
+            throw std::runtime_error("Failed to open file:" + filename); // 抛出异常
+        }
+    }
 
 } // namespace wekws

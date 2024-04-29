@@ -58,6 +58,13 @@ namespace wekws {
         float total_score() const { return ns + s; }
     };
 
+    struct KeyWord {             // for keyword.
+        float hit_score = 1.0;
+        int start_frame = 0;
+        int end_frame = 0;
+        bool state = false; // is activated or not.
+    };
+
     // Define decoding type.
     typedef enum {
         DECODE_GREEDY_SEARCH=0,
@@ -86,7 +93,7 @@ namespace wekws {
         // set keyword
         void setKeyWord(const std::string& keyWord);
 
-        void decode_keywords(int stepT, std::vector<std::vector<float>>& probs);
+        void decode_keywords(std::vector<std::vector<float>>& probs, float hitScoreThr=0.0);
 
         // decoding alignments to predict sequence using greedy search.
         void decode_with_greedy_search(int offset,  std::vector<std::vector<float>>& probs);
@@ -95,7 +102,7 @@ namespace wekws {
         void decode_ctc_prefix_beam_search(int offset, const std::vector<float> &prob);
 
         // find keyword
-        bool execute_detection(float hitScoreThr=0.1);
+        void execute_detection(float hitScoreThr=0.1);
 
         // Token is keyword or not.
         bool isKeyword(int index);
@@ -108,6 +115,10 @@ namespace wekws {
 
         //time stemp reset
         void stepClear();
+
+        //keyword info;
+        KeyWord kwsInfo;
+
 
     private:
         // onnx runtime session
@@ -160,6 +171,8 @@ namespace wekws {
 
         //global Time step.
         int mGTimeStep = 0;
+
+        bool activated = false;
     };
 
 

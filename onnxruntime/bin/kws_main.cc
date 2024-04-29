@@ -14,47 +14,19 @@
 // limitations under the License.
 
 
-#include <algorithm>
-#include <string>
-
 #include "frontend/feature_pipeline.h"
 #include "frontend/wav.h"
 #include "kws/keyword_spotting.h"
+#include "kws/utils.h"
 #include "utils/log.h"
-#include <boost/filesystem.hpp>  //apt-get install libboost-all-dev
 
-
-void read_pcm(const std::string& file_path, std::vector<float>& pcm_float){
-    std::ifstream pcm_file(file_path, std::ios::binary | std::ios::ate);
-
-    if (!pcm_file.is_open()) {
-        std::cout << "Failed to open PCM file." << std::endl;
-    }
-
-    // 获取文件大小
-    std::streampos file_size = pcm_file.tellg();
-    pcm_file.seekg(0, std::ios::beg);
-
-    // 读取PCM数据
-    std::vector<char> pcm_data(file_size);
-    pcm_file.read(pcm_data.data(), file_size);
-    pcm_file.close();
-
-    // 将PCM数据转换为float数据
-    const int16_t* pcm_data_ptr = reinterpret_cast<const int16_t*>(pcm_data.data());
-    int sample_count = file_size / sizeof(int16_t);
-
-    for (int i = 0; i < sample_count; ++i) {
-        pcm_float.push_back(static_cast<float>(pcm_data_ptr[i]));
-    }
-}
-
+using namespace  wekws;
 
 int main(int argc, char *argv[]) {
 
-    std::string token_path;
-    std::string key_word;
+    std::string token_path, key_word;
     wenet::MODEL_TYPE mode_type;
+
     if (argc > 2){
         mode_type = (wenet::MODEL_TYPE)std::stoi(argv[1]);
         if(mode_type==wenet::CTC_TYPE_MODEL){
@@ -85,7 +57,6 @@ int main(int argc, char *argv[]) {
     }
     const std::string model_path = argv[4];
     const std::string wav_path = argv[5];
-
 
     boost::filesystem::path wavpath(wav_path);
     std::vector<float> wav;
@@ -124,8 +95,9 @@ int main(int argc, char *argv[]) {
 
         if(mode_type==1){
             // Reach the end of feature pipeline
-            spotter.decode_keywords(offset, probs); // feature_config.downsampling
-            bool flag = spotter.execute_detection();
+            spotter.decode_keywords(probs, 0.2);
+            // 每次唤醒检测结果，保存在全局变量 spotter.kwsInfo中。
+
         }else{
             int flag = 0;
             float threshold = 0.8; // > threshold  means keyword activated. < threshold means not.

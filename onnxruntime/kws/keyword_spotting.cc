@@ -92,11 +92,15 @@ namespace wekws {
 
     void KeywordSpotting::reset_value() {
         if (mdecode_type == DECODE_PREFIX_BEAM_SEARCH) {
+            cur_hyps_.clear();
             PrefixScore prefix_score;
             prefix_score.s = 1.0;
             prefix_score.ns = 0.0;
             std::vector<int> empty;
             cur_hyps_[empty] = prefix_score;
+
+            activated = false; // none
+
         } else if (mdecode_type == DECODE_GREEDY_SEARCH) {
             gd_cur_hyps.clear();
         }
@@ -216,18 +220,25 @@ namespace wekws {
 
     }
 
-    void KeywordSpotting::decode_keywords(int stepT, std::vector<std::vector<float>> &probs) {
+    void KeywordSpotting::decode_keywords(std::vector<std::vector<float>> &probs, float hitScoreThr) {
         /*decode keyword.
          */
         if (mdecode_type == DECODE_GREEDY_SEARCH) {
             //std::cout << "DECODE_GREEDY_SEARCH" << std::endl;
-            decode_with_greedy_search(stepT, probs);
+            decode_with_greedy_search(mGTimeStep, probs);
+            mGTimeStep += 1;
 
         } else if (mdecode_type == DECODE_PREFIX_BEAM_SEARCH) {
             // std::cout << "DECODE_PREFIX_BEAM_SEARCH" << std::endl;
             for (const auto &prob: probs) {
-                mGTimeStep += 1;
+
                 decode_ctc_prefix_beam_search(mGTimeStep, prob);
+                mGTimeStep += 1;
+                execute_detection(hitScoreThr);
+                if (activated) {
+                    reset_value();
+                    break;
+                }
             }
         } else {
             std::cerr << "Not implement yet now.";
@@ -388,53 +399,55 @@ namespace wekws {
 
     }
 
-    bool KeywordSpotting::execute_detection(float hitScoreThr) {
+     void KeywordSpotting::execute_detection(float hitScoreThr) {
         /*　对当前输出的prfix串和关键词进行对比，判断是否唤醒.
          * */
-        int start, end;
-        float hit_score = 1.0;
-        bool flag = false;
 
         if (mdecode_type == wekws::DECODE_PREFIX_BEAM_SEARCH) {
             for (const auto &it: cur_hyps_) {
                 const std::vector<int> &prefix = it.first;
                 const std::vector<Token> &nodes = it.second.nodes;
                 if (!prefix.empty() && prefix.size() == mkeyword_token.size()) {
+                    int num = 0;
                     for (auto i = 0; i < prefix.size(); i++) {
-                        flag = (prefix[i] != mkeyword_token[i]) ? false : true;
-                        hit_score *= nodes[i].prob;
-                        if (i == 0) start = nodes[i].timeStep;
-                        if (i == nodes.size() - 1) end = nodes[i].timeStep;
+                        num += (prefix[i] != mkeyword_token[i]) ? 0 : 1;
+                        kwsInfo.hit_score *= nodes[i].prob;
+                        if (i == 0) kwsInfo.start_frame = nodes[i].timeStep;
+                        if (i == nodes.size() - 1) kwsInfo.end_frame= nodes[i].timeStep;
                     }
+                    activated = (num==mkeyword_token.size()) ? true : false;
                 }
-                if (flag == true) {
-                    cur_hyps_.clear();
-                    reset_value();
+                kwsInfo.hit_score = std::sqrt(kwsInfo.hit_score);
+                activated = (kwsInfo.hit_score > hitScoreThr) ? activated : false;
+                kwsInfo.state = activated;
+                if (activated == true) {
+
+                    std::cout  << "keyword=" << mkey_word
+                               << " hitscore=" << kwsInfo.hit_score << " hitScoreThr=" << hitScoreThr
+                               << " start T=" << kwsInfo.start_frame
+                               << " end T=" << kwsInfo.end_frame << std::endl;
+                    //print_vector(prefix);
                     break;
                 }
             }
         } else {
             //  std::cout << "cur_hyps size: " << cur_hyps.size() << " kws size: " << this->mkws_ids.size() <<std::endl;
             if (!gd_cur_hyps.empty() && mkeyword_token.size() == gd_cur_hyps.size()) {
+                int num = 0;
                 for (auto i = 0; i < gd_cur_hyps.size(); i++) {
-                    flag = (gd_cur_hyps[i].id != mkeyword_token[i]) ? false : true;
-                    hit_score *= gd_cur_hyps[i].prob;
-                    if (i == 0) start = gd_cur_hyps[i].timeStep;
-                    if (i == gd_cur_hyps.size() - 1) end = gd_cur_hyps[i].timeStep;
+                    num += (gd_cur_hyps[i].id != mkeyword_token[i]) ? 0 : 1;
+                    kwsInfo.hit_score *= gd_cur_hyps[i].prob;
+                    if (i == 0) kwsInfo.start_frame = gd_cur_hyps[i].timeStep;
+                    if (i == gd_cur_hyps.size() - 1) kwsInfo.end_frame = gd_cur_hyps[i].timeStep;
                 }
+                activated = (num==mkeyword_token.size()) ? true : false;
             }
         }
-        // find keyword in predicted sequence.
-        if (flag == true && hit_score >hitScoreThr) {
-            std::cout << "hitword=" << mkey_word << " hitscore=" << hit_score
-            << " hitScoreThr=" << hitScoreThr << "start frame=" << start
-            << " end frame=" << end << std::endl;
 
-        }
-        return flag;
     }
 
     void KeywordSpotting::stepClear(){
         mGTimeStep = 0;
     }
+
 }  // namespace wekws

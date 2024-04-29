@@ -19,13 +19,22 @@
 #include <cstdint>
 #include <limits>
 #include <vector>
+#include <string>
+#include <queue>
+#include <boost/filesystem.hpp>  //apt-get install libboost-all-dev
+#include <stdexcept>
 
 namespace wekws {
 
-template <typename T>
-void TopK(const std::vector<T>& data, int32_t k, std::vector<T>* values,
-          std::vector<int>* indices);
+    template <typename T>
+    void TopK(const std::vector<T>& data, int32_t k, std::vector<T>* values,
+              std::vector<int>* indices);
 
+    void read_pcm(const std::string& file_path, std::vector<float>& pcm_float);
+
+    void process_directory(const boost::filesystem::path &dirpath, std::vector<std::string> &wavePaths);
+
+    void writeVectorToFile(const std::vector<std::string>& data, const std::string& filename);
 }  // namespace wekws
 
 #endif  // UTILS_UTILS_H_

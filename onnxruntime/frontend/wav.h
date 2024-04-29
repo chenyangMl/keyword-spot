@@ -127,6 +127,9 @@ class WavReader {
 
   const float* data() const { return data_; }
 
+
+
+
  private:
   int num_channel_;
   int sample_rate_;
