@@ -164,11 +164,11 @@ namespace wenet {
         // 复制原始特征到填充后的特征矩阵中
         for (size_t i = 0; i < numRows; ++i) {
             // 复制原始特征到填充后的特征矩阵的右侧
-            std::copy(feats[i].begin(), feats[i].end(), paddedFeats[i].begin() + leftContext);
+            std::copy(feats[i].begin(), feats[i].end(), paddedFeats[i + leftContext].begin());
 
             // 使用最边缘的元素复制填充特征到填充后的特征矩阵的左侧
             for (int j = 0; j < leftContext; ++j) {
-                paddedFeats[i][j] = feats[i][0]; // 使用第一列的元素进行复制
+                std::copy(feats[0].begin(), feats[0].end(), paddedFeats[j].begin()); // 使用第一行的元素进行复制
             }
         }
 
