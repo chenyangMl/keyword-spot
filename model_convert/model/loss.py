@@ -192,7 +192,7 @@ def criterion(type: str,
             logits, target, lengths, target_lengths, validation)
         return loss, acc
     else:
-        exit(1)
+        raise ValueError('Unknown criterion type: {!r}'.format(type))
 
 def ctc_prefix_beam_search(
     logits: torch.Tensor,
@@ -430,8 +430,8 @@ class Calculator:
             elif self.space[i][j]['error'] == 'non':  # starting point
                 break
             else:  # shouldn't reach here
-                print(
-                    'this should not happen, '
+                raise RuntimeError(
+                    'Unexpected error state during traceback: '
                     'i = {i} , j = {j} , error = {error}'
                     .format(i=i, j=j, error=self.space[i][j]['error']))
         return result

@@ -53,6 +53,11 @@ class Executor:
             grad_norm = clip_grad_norm_(model.parameters(), clip)
             if torch.isfinite(grad_norm):
                 optimizer.step()
+            else:
+                logging.warning(
+                    'TRAIN Batch {}/{} skipping optimizer step: '
+                    'non-finite grad_norm {}'.format(
+                        epoch, batch_idx, grad_norm))
             if batch_idx % log_interval == 0:
                 logging.debug(
                     'TRAIN Batch {}/{} loss {:.8f} acc {:.8f}'.format(
@@ -88,6 +93,10 @@ class Executor:
                     num_seen_utts += num_utts
                     total_loss += loss.item() * num_utts
                     total_acc += acc * num_utts
+                else:
+                    logging.warning(
+                        'CV Batch {}/{} skipping: non-finite loss'.format(
+                            epoch, batch_idx))
                 if batch_idx % log_interval == 0:
                     logging.debug(
                         'CV Batch {}/{} loss {:.8f} acc {:.8f} history loss {:.8f}'

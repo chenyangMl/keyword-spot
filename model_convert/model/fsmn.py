@@ -517,7 +517,6 @@ class FSMN(nn.Module):
 
     def to_pytorch_net(self, kaldi_file):
         with open(kaldi_file, 'r', encoding='utf8') as fread:
-            fread = open(kaldi_file, 'r')
             nnet_start_line = fread.readline()
             assert nnet_start_line.strip() == '<Nnet>'
 
@@ -543,7 +542,6 @@ class FSMN(nn.Module):
 
             nnet_end_line = fread.readline()
             assert nnet_end_line.strip() == '</Nnet>'
-        fread.close()
 
 
 if __name__ == '__main__':

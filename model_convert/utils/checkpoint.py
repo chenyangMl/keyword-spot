@@ -22,13 +22,20 @@ import torch
 
 
 def load_checkpoint(model: torch.nn.Module, path: str) -> dict:
+    if not os.path.isfile(path):
+        raise FileNotFoundError(
+            'Checkpoint file not found: {}'.format(path))
     if torch.cuda.is_available():
         logging.info('Checkpoint: loading from checkpoint %s for GPU' % path)
         checkpoint = torch.load(path)
     else:
         logging.info('Checkpoint: loading from checkpoint %s for CPU' % path)
         checkpoint = torch.load(path, map_location='cpu')
-    model.load_state_dict(checkpoint)
+    try:
+        model.load_state_dict(checkpoint)
+    except RuntimeError as e:
+        raise RuntimeError(
+            'Failed to load state dict from {}: {}'.format(path, e))
     info_path = re.sub('.pt$', '.yaml', path)
     configs = {}
     if os.path.exists(info_path):

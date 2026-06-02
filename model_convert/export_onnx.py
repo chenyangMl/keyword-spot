@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import argparse
+import logging
 
 import torch
 import yaml,json
@@ -40,12 +41,19 @@ def get_args():
 
 def main():
     args = get_args()
-    if args.config.endswith("json"):
-        with open(args.config) as f:
-            configs = json.load(f)
-    else:
-        with open(args.config, 'r') as fin:
-            configs = yaml.load(fin, Loader=yaml.FullLoader)
+    if not os.path.isfile(args.config):
+        raise FileNotFoundError(
+            'Config file not found: {}'.format(args.config))
+    try:
+        if args.config.endswith("json"):
+            with open(args.config) as f:
+                configs = json.load(f)
+        else:
+            with open(args.config, 'r') as fin:
+                configs = yaml.load(fin, Loader=yaml.FullLoader)
+    except (json.JSONDecodeError, yaml.YAMLError) as e:
+        raise ValueError(
+            'Failed to parse config file {}: {}'.format(args.config, e))
     feature_dim = configs['model']['input_dim']
     model = init_model(configs['model'])
     is_fsmn = configs['model']['backbone']['type'] == 'fsmn'
@@ -100,10 +108,14 @@ def main():
                       torch.tensor(onnx_output[0]), atol=1e-6) and \
        torch.allclose(torch_output[1],
                       torch.tensor(onnx_output[1]), atol=1e-6):
-        print('Export to onnx succeed!')
+        logging.info('Export to onnx succeed!')
     else:
-        print('''Export to onnx succeed, but pytorch/onnx have different
-                 outputs when given the same input, please check!!!''')
+        logging.warning(
+            'Export to onnx succeed, but pytorch/onnx have different '
+            'outputs when given the same input, please check!!!')
+        raise RuntimeError(
+            'ONNX model output does not match PyTorch output within '
+            'tolerance (atol=1e-6). Exported model may be inaccurate.')
 
 
 if __name__ == '__main__':

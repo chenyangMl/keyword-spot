@@ -24,8 +24,12 @@ def read_lists(list_file):
 def read_symbol_table(symbol_table_file):
     symbol_table = {}
     with open(symbol_table_file, 'r', encoding='utf8') as fin:
-        for line in fin:
+        for line_num, line in enumerate(fin, 1):
             arr = line.strip().split()
-            assert len(arr) == 2
+            if len(arr) != 2:
+                raise ValueError(
+                    'Expected 2 fields per line in symbol table {}, '
+                    'but got {} at line {}: {!r}'.format(
+                        symbol_table_file, len(arr), line_num, line.strip()))
             symbol_table[arr[0]] = int(arr[1])
     return symbol_table

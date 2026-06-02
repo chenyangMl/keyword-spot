@@ -29,8 +29,22 @@ def load_cmvn(json_cmvn_file):
     Returns:
         a numpy array of [means, vars]
     """
-    with open(json_cmvn_file) as f:
-        cmvn_stats = json.load(f)
+    try:
+        with open(json_cmvn_file) as f:
+            cmvn_stats = json.load(f)
+    except FileNotFoundError:
+        raise FileNotFoundError(
+            'CMVN stats file not found: {}'.format(json_cmvn_file))
+    except json.JSONDecodeError as e:
+        raise ValueError(
+            'Failed to parse CMVN JSON file {}: {}'.format(
+                json_cmvn_file, e))
+
+    for key in ('mean_stat', 'var_stat', 'frame_num'):
+        if key not in cmvn_stats:
+            raise KeyError(
+                'Missing required key {!r} in CMVN file {}'.format(
+                    key, json_cmvn_file))
 
     means = cmvn_stats['mean_stat']
     variance = cmvn_stats['var_stat']
@@ -56,6 +70,7 @@ def load_kaldi_cmvn(cmvn_file):
 
     means = None
     variance = None
+    copy_times = None
     with open(cmvn_file) as f:
         all_lines = f.readlines()
         for idx, line in enumerate(all_lines):
@@ -85,6 +100,16 @@ def load_kaldi_cmvn(cmvn_file):
                 copy_times = len(splice_list)
             else:
                 continue
+
+    if means is None:
+        raise ValueError(
+            'No AddShift section found in CMVN file {}'.format(cmvn_file))
+    if variance is None:
+        raise ValueError(
+            'No Rescale section found in CMVN file {}'.format(cmvn_file))
+    if copy_times is None:
+        raise ValueError(
+            'No Splice section found in CMVN file {}'.format(cmvn_file))
 
     cmvn = np.array([means, variance])
     cmvn = np.tile(cmvn, (1, copy_times))

@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
 from typing import Optional, Tuple
 
 import torch
@@ -120,8 +119,7 @@ def init_model(configs):
     elif prep_type == 'none':
         preprocessing = NoSubsampling()
     else:
-        print('Unknown preprocessing type {}'.format(prep_type))
-        sys.exit(1)
+        raise ValueError('Unknown preprocessing type {}'.format(prep_type))
 
     backbone_type = configs['backbone']['type']
     if backbone_type == 'gru':
@@ -169,8 +167,7 @@ def init_model(configs):
                         right_stride, output_affine_dim, output_dim)
 
     else:
-        print('Unknown body type {}'.format(backbone_type))
-        sys.exit(1)
+        raise ValueError('Unknown backbone type {}'.format(backbone_type))
     if 'classifier' in configs:
         # For speech command dataset, we use 2 FC layer as classifier,
         # we add dropout after first FC layer to prevent overfitting
@@ -190,8 +187,8 @@ def init_model(configs):
         elif classifier_type == 'identity':
             classifier = nn.Identity()
         else:
-            print('Unknown classifier type {}'.format(classifier_type))
-            sys.exit(1)
+            raise ValueError(
+                'Unknown classifier type {}'.format(classifier_type))
         activation = nn.Identity()
     else:
         classifier = LinearClassifier(hidden_dim, output_dim)
@@ -205,8 +202,8 @@ def init_model(configs):
         if activation_type == 'identity':
             activation = nn.Identity()
         else:
-            print('Unknown activation type {}'.format(activation_type))
-            sys.exit(1)
+            raise ValueError(
+                'Unknown activation type {}'.format(activation_type))
 
     kws_model = KWSModel(input_dim, output_dim, hidden_dim, global_cmvn,
                          preprocessing, backbone, classifier, activation)
