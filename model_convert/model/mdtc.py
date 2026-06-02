@@ -19,6 +19,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from model_convert.utils.common import forward_with_cache
+
 
 class DSDilatedConv1d(nn.Module):
     """Dilated Depthwise-Separable Convolution"""
@@ -180,19 +182,7 @@ class TCNStack(nn.Module):
         inputs: torch.Tensor,
         in_cache: torch.Tensor = torch.zeros(0, 0, 0, dtype=torch.float)
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        outputs = inputs  # (B, D, T)
-        out_caches = []
-        offset = 0
-        for block in self.res_blocks:
-            if in_cache.size(0) > 0:
-                c_in = in_cache[:, :, offset:offset + block.padding]
-            else:
-                c_in = torch.zeros(0, 0, 0)
-            outputs, c_out = block(outputs, c_in)
-            out_caches.append(c_out)
-            offset += block.padding
-        new_cache = torch.cat(out_caches, dim=2)
-        return outputs, new_cache
+        return forward_with_cache(self.res_blocks, inputs, in_cache)
 
 
 class MDTC(nn.Module):

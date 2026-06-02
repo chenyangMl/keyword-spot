@@ -12,6 +12,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from model_convert.utils.common import unpack_input, read_weight_matrix
+
 
 def toKaldiMatrix(np_mat):
     np.set_printoptions(threshold=np.inf, linewidth=np.nan)
@@ -41,10 +43,7 @@ class LinearTransform(nn.Module):
 
     def forward(self,
                 input: Tuple[torch.Tensor, torch.Tensor]):
-        if isinstance(input, tuple):
-            input, in_cache = input
-        else:
-            in_cache = torch.zeros(0, 0, 0, 0, dtype=torch.float)
+        input, in_cache = unpack_input(input)
         output = self.quant(input)
         output = self.linear(output)
         output = self.dequant(output)
@@ -60,7 +59,6 @@ class LinearTransform(nn.Module):
         linear_weights = self.state_dict()['linear.weight']
         x = linear_weights.squeeze().numpy()
         re_str += toKaldiMatrix(x)
-        # re_str += '<!EndOfComponent>\n'
 
         return re_str
 
@@ -76,20 +74,8 @@ class LinearTransform(nn.Module):
         assert learn_rate_line.find('LearnRateCoef') != -1
 
         self.linear.reset_parameters()
-
-        # linear_weights = self.state_dict()['linear.weight']
-        # print(linear_weights.shape)
-        new_weights = torch.zeros((self.output_dim, self.input_dim),
-                                  dtype=torch.float32)
-        for i in range(self.output_dim):
-            line = fread.readline()
-            splits = line.strip().strip('[]').strip().split()
-            assert len(splits) == self.input_dim
-            cols = torch.tensor([float(item) for item in splits],
-                                dtype=torch.float32)
-            new_weights[i, :] = cols
-
-        self.linear.weight.data = new_weights
+        self.linear.weight.data = read_weight_matrix(
+            fread, self.output_dim, self.input_dim)
 
 
 class AffineTransform(nn.Module):
@@ -105,10 +91,7 @@ class AffineTransform(nn.Module):
 
     def forward(self,
                 input: Tuple[torch.Tensor, torch.Tensor]):
-        if isinstance(input, tuple):
-            input, in_cache = input
-        else:
-            in_cache = torch.zeros(0, 0, 0, 0, dtype=torch.float)
+        input, in_cache = unpack_input(input)
         output = self.quant(input)
         output = self.linear(output)
         output = self.dequant(output)
@@ -128,7 +111,6 @@ class AffineTransform(nn.Module):
         linear_bias = self.state_dict()['linear.bias']
         x = linear_bias.squeeze().numpy()
         re_str += toKaldiMatrix(x)
-        # re_str += '<!EndOfComponent>\n'
 
         return re_str
 
@@ -145,24 +127,10 @@ class AffineTransform(nn.Module):
         learn_rate_line = fread.readline()
         assert learn_rate_line.find('LearnRateCoef') != -1
 
-        # linear_weights = self.state_dict()['linear.weight']
-        # print(linear_weights.shape)
         self.linear.reset_parameters()
+        self.linear.weight.data = read_weight_matrix(
+            fread, self.output_dim, self.input_dim)
 
-        new_weights = torch.zeros((self.output_dim, self.input_dim),
-                                  dtype=torch.float32)
-        for i in range(self.output_dim):
-            line = fread.readline()
-            splits = line.strip().strip('[]').strip().split()
-            assert len(splits) == self.input_dim
-            cols = torch.tensor([float(item) for item in splits],
-                                dtype=torch.float32)
-            new_weights[i, :] = cols
-
-        self.linear.weight.data = new_weights
-
-        # linear_bias = self.state_dict()['linear.bias']
-        # print(linear_bias.shape)
         bias_line = fread.readline()
         splits = bias_line.strip().strip('[]').strip().split()
         assert len(splits) == self.output_dim
@@ -217,10 +185,7 @@ class FSMNBlock(nn.Module):
 
     def forward(self,
                 input: Tuple[torch.Tensor, torch.Tensor]):
-        if isinstance(input, tuple):
-            input, in_cache = input
-        else :
-            in_cache = torch.zeros(0, 0, 0, 0, dtype=torch.float)
+        input, in_cache = unpack_input(input)
         x = torch.unsqueeze(input, 1)
         x_per = x.permute(0, 3, 2, 1)
 
@@ -349,10 +314,7 @@ class RectifiedLinear(nn.Module):
 
     def forward(self,
                 input: Tuple[torch.Tensor, torch.Tensor]):
-        if isinstance(input, tuple):
-            input, in_cache = input
-        else :
-            in_cache = torch.zeros(0, 0, 0, 0, dtype=torch.float)
+        input, in_cache = unpack_input(input)
         out = self.relu(input)
         # out = self.dropout(out)
         return (out, in_cache)

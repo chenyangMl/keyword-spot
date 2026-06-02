@@ -19,6 +19,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from model_convert.utils.common import forward_with_cache
+
 
 class Block(nn.Module):
     def __init__(self,
@@ -147,18 +149,8 @@ class TCN(nn.Module):
             torch.Tensor(B, D, C): C is the accumulated cache size
         """
         x = x.transpose(1, 2)  # (B, D, T)
-        out_caches = []
-        offset = 0
-        for block in self.network:
-            if in_cache.size(0) > 0:
-                c_in = in_cache[:, :, offset:offset + block.padding]
-            else:
-                c_in = torch.zeros(0, 0, 0)
-            x, c_out = block(x, c_in)
-            out_caches.append(c_out)
-            offset += block.padding
+        x, new_cache = forward_with_cache(self.network, x, in_cache)
         x = x.transpose(1, 2)  # (B, T, D)
-        new_cache = torch.cat(out_caches, dim=2)
         return x, new_cache
 
     def fuse_modules(self):

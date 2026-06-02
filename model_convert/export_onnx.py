@@ -16,7 +16,6 @@
 import argparse
 
 import torch
-import yaml,json
 import os, sys
 sys.path.insert(0, os.getcwd())
 
@@ -25,6 +24,7 @@ import onnxruntime as ort
 
 from model_convert.model.kws_model import init_model
 from model_convert.utils.checkpoint import load_checkpoint
+from model_convert.utils.common import load_config
 
 
 def get_args():
@@ -40,12 +40,7 @@ def get_args():
 
 def main():
     args = get_args()
-    if args.config.endswith("json"):
-        with open(args.config) as f:
-            configs = json.load(f)
-    else:
-        with open(args.config, 'r') as fin:
-            configs = yaml.load(fin, Loader=yaml.FullLoader)
+    configs = load_config(args.config)
     feature_dim = configs['model']['input_dim']
     model = init_model(configs['model'])
     is_fsmn = configs['model']['backbone']['type'] == 'fsmn'
