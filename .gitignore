@@ -42,3 +42,12 @@ fc_base/
 
 # 训练过程中产生的中间文件
 models/
+
+# Secrets and credentials
+.env
+.env.*
+*.pem
+*.key
+*.secret
+credentials.json
+secrets.yaml

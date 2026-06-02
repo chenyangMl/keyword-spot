@@ -1,10 +1,10 @@
-set(ONNX_VERSION "1.12.0")
+set(ONNX_VERSION "1.19.2")
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
   set(ONNX_URL "https://github.com/microsoft/onnxruntime/releases/download/v${ONNX_VERSION}/onnxruntime-linux-aarch64-${ONNX_VERSION}.tgz")
-  set(URL_HASH "SHA256=5820d9f343df73c63b6b2b174a1ff62575032e171c9564bcf92060f46827d0ac")
+  set(URL_HASH "SHA256=5e30145277d6d6fcb0e8f14f0d0ab5048af7b13ffd608023bb1e2875621fab07")
 else()
   set(ONNX_URL "https://github.com/microsoft/onnxruntime/releases/download/v${ONNX_VERSION}/onnxruntime-linux-x64-${ONNX_VERSION}.tgz")
-  set(URL_HASH "SHA256=5d503ce8540358b59be26c675e42081be14a3e833a5301926f555451046929c5")
+  set(URL_HASH "SHA256=eb00c64e0041f719913c4080e0fed7d9963dc3aa9b54664df6036d8308dbcd33")
 endif()
 
 FetchContent_Declare(onnxruntime
