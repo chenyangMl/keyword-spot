@@ -91,6 +91,7 @@ namespace wekws {
     }
 
     void KeywordSpotting::reset_value() {
+        kwsInfo = KeyWord(); // start each detection cycle with a clean score.
         if (mdecode_type == DECODE_PREFIX_BEAM_SEARCH) {
             cur_hyps_.clear();
             PrefixScore prefix_score;
@@ -408,6 +409,10 @@ namespace wekws {
                 const std::vector<int> &prefix = it.first;
                 const std::vector<Token> &nodes = it.second.nodes;
                 if (!prefix.empty() && prefix.size() == mkeyword_token.size()) {
+                    // Reset keyword info before scoring each candidate prefix,
+                    // otherwise hit_score keeps accumulating across candidates
+                    // and across frames (see issue #16).
+                    kwsInfo = KeyWord();
                     int num = 0;
                     for (auto i = 0; i < prefix.size(); i++) {
                         num += (prefix[i] != mkeyword_token[i]) ? 0 : 1;
@@ -415,24 +420,27 @@ namespace wekws {
                         if (i == 0) kwsInfo.start_frame = nodes[i].timeStep;
                         if (i == nodes.size() - 1) kwsInfo.end_frame= nodes[i].timeStep;
                     }
+                    kwsInfo.hit_score = std::sqrt(kwsInfo.hit_score);
                     activated = (num==mkeyword_token.size()) ? true : false;
-                }
-                kwsInfo.hit_score = std::sqrt(kwsInfo.hit_score);
-                activated = (kwsInfo.hit_score > hitScoreThr) ? activated : false;
-                kwsInfo.state = activated;
-                if (activated == true) {
+                    activated = (kwsInfo.hit_score > hitScoreThr) ? activated : false;
+                    kwsInfo.state = activated;
+                    if (activated == true) {
 
-                    std::cout  << "keyword=" << mkey_word
-                               << " hitscore=" << kwsInfo.hit_score << " hitScoreThr=" << hitScoreThr
-                               << " start T=" << kwsInfo.start_frame
-                               << " end T=" << kwsInfo.end_frame << std::endl;
-                    //print_vector(prefix);
-                    break;
+                        std::cout  << "keyword=" << mkey_word
+                                   << " hitscore=" << kwsInfo.hit_score << " hitScoreThr=" << hitScoreThr
+                                   << " start T=" << kwsInfo.start_frame
+                                   << " end T=" << kwsInfo.end_frame << std::endl;
+                        //print_vector(prefix);
+                        break;
+                    }
                 }
             }
         } else {
             //  std::cout << "cur_hyps size: " << cur_hyps.size() << " kws size: " << this->mkws_ids.size() <<std::endl;
             if (!gd_cur_hyps.empty() && mkeyword_token.size() == gd_cur_hyps.size()) {
+                // Reset keyword info before scoring, otherwise hit_score keeps
+                // accumulating across calls (see issue #16).
+                kwsInfo = KeyWord();
                 int num = 0;
                 for (auto i = 0; i < gd_cur_hyps.size(); i++) {
                     num += (gd_cur_hyps[i].id != mkeyword_token[i]) ? 0 : 1;

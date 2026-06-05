@@ -105,6 +105,19 @@ def init_model(configs):
             torch.from_numpy(istd).float(),
             cmvn['norm_var'],
         )
+    elif cmvn.get('load_from_checkpoint', False):
+        # Some checkpoints (e.g. models trained on the modelscope
+        # `speech_charctc_kws_phone-xiaoyun` base) store the global cmvn
+        # statistics inside the .pt file as `global_cmvn.mean/istd` buffers.
+        # Build a placeholder GlobalCMVN here so those buffers are loaded by
+        # load_state_dict instead of triggering an "unexpected key" error
+        # (see issue #5/#15).
+        cmvn_dim = cmvn.get('dim', configs['input_dim'])
+        global_cmvn = GlobalCMVN(
+            torch.zeros(cmvn_dim).float(),
+            torch.ones(cmvn_dim).float(),
+            cmvn.get('norm_var', True),
+        )
     else:
         global_cmvn = None
 
